@@ -22,6 +22,9 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+
 	"github.com/cloudygreybeard/favs/pkg/adapter"
 	"github.com/cloudygreybeard/favs/pkg/bookmark"
 	"github.com/cloudygreybeard/favs/pkg/output"
@@ -131,7 +134,7 @@ func (a *Adapter) renderTextual(collection *bookmark.Collection, opts output.Ren
 				continue
 			}
 
-			header := strings.Title(bm[0].Source)
+			header := cases.Title(language.English).String(bm[0].Source)
 			if opts.IncludeProfile && bm[0].Profile != "" {
 				header += " / " + bm[0].Profile
 			}
@@ -233,7 +236,7 @@ func (a *Adapter) renderTable(collection *bookmark.Collection, opts output.Rende
 				continue
 			}
 
-			header := strings.Title(bm[0].Source)
+			header := cases.Title(language.English).String(bm[0].Source)
 			if opts.IncludeProfile && bm[0].Profile != "" {
 				header += " / " + bm[0].Profile
 			}

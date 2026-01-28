@@ -25,6 +25,9 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+
 	"github.com/cloudygreybeard/favs/pkg/adapter"
 	"github.com/cloudygreybeard/favs/pkg/bookmark"
 	"github.com/cloudygreybeard/favs/pkg/input"
@@ -101,7 +104,7 @@ func (a *Adapter) DisplayName() string {
 	if name, ok := displayNames[a.browser]; ok {
 		return name
 	}
-	return strings.Title(a.browser)
+	return cases.Title(language.English).String(a.browser)
 }
 
 // Available returns true if bookmarks are accessible.

@@ -32,10 +32,9 @@ import (
 
 // Server implements an MCP server for bookmark resources.
 type Server struct {
-	config    config.Config
-	cache     *bookmark.Collection
-	cacheMu   sync.RWMutex
-	cacheTime int64
+	config  config.Config
+	cache   *bookmark.Collection
+	cacheMu sync.RWMutex
 }
 
 // NewServer creates a new MCP server.
