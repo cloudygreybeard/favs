@@ -1,0 +1,100 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
+
+version: 2
+
+project_name: favs
+
+before:
+  hooks:
+    - go mod tidy
+    - go test ./...
+
+builds:
+  - id: favs
+    main: .
+    binary: favs
+    env:
+      - CGO_ENABLED=1
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X github.com/cloudygreybeard/favs/cmd.Version={{.Version}}
+      - -X github.com/cloudygreybeard/favs/cmd.Commit={{.ShortCommit}}
+      - -X github.com/cloudygreybeard/favs/cmd.Date={{.Date}}
+
+  # Windows build (separate due to CGO cross-compile complexity)
+  - id: favs-windows
+    main: .
+    binary: favs
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - windows
+    goarch:
+      - amd64
+    ldflags:
+      - -s -w
+      - -X github.com/cloudygreybeard/favs/cmd.Version={{.Version}}
+      - -X github.com/cloudygreybeard/favs/cmd.Commit={{.ShortCommit}}
+      - -X github.com/cloudygreybeard/favs/cmd.Date={{.Date}}
+    # Note: Windows build excludes Firefox support (requires CGO for SQLite)
+
+archives:
+  - id: default
+    formats:
+      - tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENSE
+      - README.md
+      - favs.example.yaml
+      - man/favs.1
+
+checksum:
+  name_template: "checksums.txt"
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+      - "^ci:"
+      - "Merge pull request"
+      - "Merge branch"
+  groups:
+    - title: Features
+      regexp: '^feat(\(.+\))?:'
+      order: 0
+    - title: Bug Fixes
+      regexp: '^fix(\(.+\))?:'
+      order: 1
+    - title: Others
+      order: 999
+
+release:
+  github:
+    owner: cloudygreybeard
+    name: favs
+  draft: false
+  prerelease: auto
+  name_template: "{{.ProjectName}} v{{.Version}}"
+
+# Homebrew tap configuration
+# Note: We use a separate workflow step with SSH auth instead of GoReleaser's
+# built-in brews feature, for consistency with other cloudygreybeard packages.
+# See .github/workflows/release.yaml for the homebrew tap update logic.

@@ -1,0 +1,269 @@
+.TH FAVS 1 "January 2026" "favs" "User Commands"
+.SH NAME
+favs \- your bookmarks as context for AI assistants
+.SH SYNOPSIS
+.B favs
+[\fIOPTIONS\fR]
+.br
+.B favs
+.B serve
+.br
+.B favs
+.B adapters
+.br
+.B favs
+.B version
+.SH DESCRIPTION
+.B favs
+aggregates bookmarks from browsers and services, converting them to
+structured formats for AI assistant reference.
+.PP
+Supported browsers:
+.IP \(bu 2
+Chrome, Edge, Chromium, Brave (all platforms)
+.IP \(bu 2
+Firefox (all platforms)
+.IP \(bu 2
+Safari (macOS only)
+.PP
+Output formats:
+.IP \(bu 2
+Markdown (textual, table, or YAML styles)
+.IP \(bu 2
+JSON
+.IP \(bu 2
+YAML
+.IP \(bu 2
+OPML (for import into other tools)
+.IP \(bu 2
+Netscape HTML (universal browser import format)
+.SH OPTIONS
+.TP
+.BR \-o ", " \-\-output " " \fIFILE\fR
+Output file (default: stdout).
+.TP
+.BR \-b ", " \-\-browser " " \fINAME\fR
+Browser to use (default: first available).
+.TP
+.BR \-p ", " \-\-profile " " \fINAME\fR
+Profile name (default: Default or first found).
+.TP
+.BR \-\-all
+Read from all available browsers and profiles.
+.TP
+.BR \-\-format " " \fIFORMAT\fR
+Output format: markdown, json, yaml, opml, or html (default: markdown).
+.TP
+.BR \-\-style " " \fISTYLE\fR
+Markdown style: textual, table, or yaml (default: textual).
+.TP
+.BR \-\-list
+List available browser profiles and exit.
+.TP
+.BR \-c ", " \-\-config " " \fIFILE\fR
+Configuration file (default: ./favs.yaml or ~/.favs/config.yaml).
+.TP
+.BR \-\-group
+Group bookmarks by browser (default: true).
+.TP
+.BR \-\-metadata
+Include metadata header (default: true).
+.TP
+.BR \-\-nested
+Use nested list format (default: true).
+.TP
+.BR \-\-sort
+Sort bookmarks alphabetically (default: false).
+.TP
+.BR \-\-input " " \fITYPE\fR
+Input adapter type (default: auto-detect browsers). Use "opml" for OPML/HTML files.
+.TP
+.BR \-\-custom\-path " " \fIPATH\fR
+Custom path for file-based input adapters (e.g., OPML or HTML file).
+.TP
+.BR \-\-exclude\-protocols " " \fILIST\fR
+Comma-separated list of URL protocols to exclude (default: data,javascript).
+.TP
+.BR \-\-warn\-protocols " " \fILIST\fR
+Comma-separated list of URL protocols that trigger warnings (default: file,chrome,about,blob).
+.TP
+.BR \-\-max\-url\-length " " \fIN\fR
+Exclude URLs longer than N characters (0 = no limit).
+.TP
+.BR \-\-warn\-url\-length " " \fIN\fR
+Warn on URLs longer than N characters (default: 2048).
+.TP
+.BR \-v ", " \-\-verbose
+Enable verbose output to stderr.
+.TP
+.BR \-\-version
+Print version information and exit.
+.TP
+.BR \-h ", " \-\-help
+Print usage information and exit.
+.SH COMMANDS
+.TP
+.B serve
+Run as an MCP (Model Context Protocol) server for AI assistant integration.
+.TP
+.B adapters
+List all registered input and output adapters.
+.TP
+.B version
+Print version, commit, and build date.
+.SH EXAMPLES
+Default browser, output to stdout:
+.PP
+.nf
+.RS
+favs
+.RE
+.fi
+.PP
+Write to file:
+.PP
+.nf
+.RS
+favs -o bookmarks.md
+.RE
+.fi
+.PP
+Specific browser and profile:
+.PP
+.nf
+.RS
+favs -b chrome -p "Profile 1"
+.RE
+.fi
+.PP
+All browsers and profiles:
+.PP
+.nf
+.RS
+favs --all
+.RE
+.fi
+.PP
+JSON output:
+.PP
+.nf
+.RS
+favs --format json
+.RE
+.fi
+.PP
+Markdown table format:
+.PP
+.nf
+.RS
+favs --style table
+.RE
+.fi
+.PP
+Export to OPML:
+.PP
+.nf
+.RS
+favs --format opml -o bookmarks.opml
+.RE
+.fi
+.PP
+Import from OPML or HTML file:
+.PP
+.nf
+.RS
+favs --input opml --custom-path bookmarks.opml
+.RE
+.fi
+.PP
+Run as MCP server:
+.PP
+.nf
+.RS
+favs serve
+.RE
+.fi
+.SH CONFIGURATION
+Configuration is loaded from (in order of priority):
+.IP 1. 3
+\fB\-\-config\fR flag
+.IP 2. 3
+\fB./favs.yaml\fR (current directory)
+.IP 3. 3
+\fB~/.favs/config.yaml\fR
+.PP
+See \fBfavs.example.yaml\fR for all options.
+.SH MCP SERVER
+When running as an MCP server, favs exposes:
+.SS Resources
+.TP
+.B favs://all
+All bookmarks in JSON format.
+.TP
+.B favs://markdown
+All bookmarks in Markdown format.
+.TP
+.B favs://<browser>
+Bookmarks from a specific browser.
+.SS Tools
+.TP
+.B sync_bookmarks
+Refresh bookmarks from browsers.
+.TP
+.B search_bookmarks
+Search bookmarks by title or URL.
+.SH URL FILTERING
+favs filters URLs by protocol and length to exclude problematic bookmarks.
+.SS Default Exclusions
+.IP \(bu 2
+\fBdata:\fR \- Base64-encoded images can be 100KB+
+.IP \(bu 2
+\fBjavascript:\fR \- Bookmarklets are code, not links
+.SS Default Warnings
+.IP \(bu 2
+\fBfile:\fR \- Local file paths
+.IP \(bu 2
+\fBchrome:\fR, \fBabout:\fR \- Browser internal pages
+.IP \(bu 2
+\fBblob:\fR \- Blob URLs
+.IP \(bu 2
+URLs longer than 2048 characters
+.SH BOOKMARK LOCATIONS
+.SS Chromium-based browsers (Chrome, Edge, Chromium, Brave)
+.TP
+.B Linux
+~/.config/{google-chrome,microsoft-edge}/Default/Bookmarks
+.TP
+.B macOS
+~/Library/Application Support/{Google/Chrome,Microsoft Edge}/Default/Bookmarks
+.TP
+.B Windows
+%LOCALAPPDATA%\\{Google\\Chrome,Microsoft\\Edge}\\User Data\\Default\\Bookmarks
+.SS Firefox
+.TP
+.B Linux
+~/.mozilla/firefox/<profile>/places.sqlite
+.TP
+.B macOS
+~/Library/Application Support/Firefox/Profiles/<profile>/places.sqlite
+.TP
+.B Windows
+%APPDATA%\\Mozilla\\Firefox\\Profiles\\<profile>\\places.sqlite
+.SS Safari (macOS only)
+~/Library/Safari/Bookmarks.plist
+.SH EXIT STATUS
+.TP
+.B 0
+Success
+.TP
+.B 1
+Error (no bookmarks found, config error, etc.)
+.SH SEE ALSO
+.BR tee (1),
+.BR jq (1)
+.SH BUGS
+Report bugs at https://github.com/cloudygreybeard/favs/issues
+.SH AUTHOR
+cloudygreybeard
+.SH LICENSE
+Apache License 2.0

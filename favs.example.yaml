@@ -1,0 +1,88 @@
+# favs configuration
+# Copy to ~/.favs/config.yaml or ./favs.yaml
+
+# Input adapters (bookmark sources)
+inputs:
+  chrome:
+    enabled: true
+    profile: ""               # Empty = auto-detect, or "Default", "Profile 1", etc.
+    custom_path: ""           # Override auto-detection
+
+  edge:
+    enabled: true
+    profile: ""
+    custom_path: ""
+
+  firefox:
+    enabled: true
+    profile: ""               # Firefox profile folder name
+    custom_path: ""
+
+  safari:
+    enabled: true             # macOS only
+    custom_path: ""
+
+  chromium:
+    enabled: false
+    profile: ""
+    custom_path: ""
+
+  brave:
+    enabled: false
+    profile: ""
+    custom_path: ""
+
+# Output adapters (renderers)
+outputs:
+  markdown:
+    enabled: true
+    style: textual            # textual, table, or yaml (embedded)
+
+  json:
+    enabled: false
+
+  yaml:
+    enabled: false
+
+# Processing pipeline
+pipeline:
+  filter:
+    # Only include bookmarks from these folders (empty = all)
+    include_folders: []
+
+    # Exclude bookmarks from these folders
+    exclude_folders:
+      - Trash
+
+    # Exclude URLs matching these patterns (regex)
+    exclude_url_patterns: []
+      # - "^chrome://"
+      # - "localhost"
+
+    # URL protocol filtering
+    # Protocols to exclude entirely (default: data, javascript)
+    exclude_protocols:
+      - data              # Base64-encoded images can be huge
+      - javascript        # JS bookmarklets
+
+    # Protocols to include with a warning (default: file, chrome, about, blob)
+    warn_protocols:
+      - file              # Local file paths
+      - chrome            # Chrome internal pages
+      - about             # Browser about: pages
+      - blob              # Blob URLs
+
+    # URL length limits (0 = disabled)
+    max_url_length: 0     # Exclude URLs longer than this
+    warn_url_length: 2048 # Warn on URLs longer than this
+
+  transform:
+    deduplicate: false        # Remove duplicate URLs
+    sort: false               # Sort alphabetically
+
+  render:
+    include_metadata: true    # Document header with generation info
+    include_dates: true       # Show date added: *(2025-01-15)*
+    include_tags: true        # Show Firefox tags: #tagname
+    include_profile: true     # Show profile in section headers
+    group_by_source: true     # Group by browser/profile in --all mode
