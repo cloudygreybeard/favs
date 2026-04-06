@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - uses: goreleaser/goreleaser-action@v6
+        with:
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  update-tap:
+    needs: release
+    uses: cloudygreybeard/homebrew-tap/.github/workflows/release-homebrew-formula.yml@main
+    with:
+      package-name: favs
+      binary-name: favs
+      formula-class: Favs
+      formula-desc: "Your bookmarks as context for AI assistants"
+      artifact-style: goreleaser
+      private: false
+      install-extra: 'man1.install "man/favs.1"'
+    secrets:
+      deploy-key: ${{ secrets.HOMEBREW_TAP_DEPLOY_KEY }}
